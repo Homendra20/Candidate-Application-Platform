@@ -1,4 +1,4 @@
-import React, {  useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
@@ -9,7 +9,7 @@ import Typography from "@mui/material/Typography";
 import { useDispatch, useSelector } from "react-redux";
 import { getUserData } from "../state/action/DashboardAction";
 import InfiniteScroll from "react-infinite-scroll-component";
-import {  Button, TextField } from "@mui/material";
+import { Button, TextField } from "@mui/material";
 import { Link } from "react-router-dom";
 
 export default function Dashboard() {
@@ -22,11 +22,11 @@ export default function Dashboard() {
   const [showMore, setShowMore] = useState({});
 
   const toggleShowMore = (jdUid) => {
-  setShowMore((prevMap) => ({
-    ...prevMap,
-    [jdUid]: !prevMap[jdUid], // Toggle the value for the specified jdUid
-  }));
-};
+    setShowMore((prevMap) => ({
+      ...prevMap,
+      [jdUid]: !prevMap[jdUid], // Toggle the value for the specified jdUid
+    }));
+  };
 
   const getUserDatavalue = useSelector((x) => x.getUser);
   console.log(getUserDatavalue);
@@ -176,7 +176,6 @@ export default function Dashboard() {
           dataLength={jobData.length}
           next={loadJobs}
           hasMore={hasMore}
-        
         >
           <div
             style={{
@@ -210,19 +209,21 @@ export default function Dashboard() {
                       : "Salary not specified"}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-  <span style={{ fontWeight: "bold", color: "#000000" }}>
-    About Company:
-  </span>
-  {showMore[job.jdUid]
-    ? job.jobDetailsFromCompany
-    : `${job.jobDetailsFromCompany.slice(0, 100)}...`}
-</Typography>
-{job.jobDetailsFromCompany.length > 100 && (
-    <Button onClick={() => toggleShowMore(job.jdUid)} color="primary">
-  {showMore[job.jdUid] ? "Show Less" : "Show More"}
-</Button>
-)}
-
+                    <span style={{ fontWeight: "bold", color: "#000000" }}>
+                      About Company:
+                    </span>
+                    {showMore[job.jdUid]
+                      ? job.jobDetailsFromCompany
+                      : `${job.jobDetailsFromCompany.slice(0, 100)}...`}
+                  </Typography>
+                  {job.jobDetailsFromCompany.length > 100 && (
+                    <Button
+                      onClick={() => toggleShowMore(job.jdUid)}
+                      color="primary"
+                    >
+                      {showMore[job.jdUid] ? "Show Less" : "Show More"}
+                    </Button>
+                  )}
 
                   <Typography variant="body2" color="text.secondary">
                     Experience:{" "}
