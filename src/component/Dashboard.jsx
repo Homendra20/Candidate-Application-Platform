@@ -9,36 +9,106 @@ import Typography from "@mui/material/Typography";
 import { useDispatch, useSelector } from "react-redux";
 import { getUserData } from "../state/action/DashboardAction";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { Button, TextField } from "@mui/material";
+import { Button, MenuItem, TextField } from "@mui/material";
 import { Link } from "react-router-dom";
 
 export default function Dashboard() {
   const dispatch = useDispatch();
-  const [search, setSearch] = useState("");
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
   const [jobData, setJobData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
   const [showMore, setShowMore] = useState({});
+  const [roleFilter, setRoleFilter] = useState("");
+  const [expFilter, setExpFilter] = useState("");
+  const [locationFilter, setLocationFilter] = useState("");
+  const [salaryFilter, setSalaryFilter] = useState("");
+  const [companySearch, setCompanySearch] = useState("");
+  const getUserDatavalue = useSelector((x) => x.getUser);
+  const handleRoleChange = (e) => {
+    setRoleFilter(e.target.value);
+  };
+
+  const handleExpChange = (e) => {
+    setExpFilter(e.target.value);
+  };
+
+  const handleLocationChange = (e) => {
+    setLocationFilter(e.target.value);
+  };
+
+  const handleSalaryChange = (e) => {
+    setSalaryFilter(e.target.value);
+  };
+
+  const handleCompanySearch = (e) => {
+    setCompanySearch(e.target.value);
+  };
+
+  const applyFilters = () => {
+    const filtered = jobData.filter((job) => {
+      const companyMatch = job.companyName
+        .toLowerCase()
+        .includes(companySearch.toLowerCase());
+      const roleMatch =
+        roleFilter === "" ||
+        job.jobRole.toLowerCase().includes(roleFilter.toLowerCase());
+        const expMatch =
+        expFilter === "" ||
+        (typeof expFilter === 'string' &&
+          job.minExp &&
+          job.minExp
+            .toString()
+            .toLowerCase()
+            .includes(expFilter.toLowerCase()));
+      
+      const locationMatch =
+        locationFilter === "" ||
+        job.location.toLowerCase().includes(locationFilter.toLowerCase());
+      const salaryMatch =
+        salaryFilter === "" ||
+        (job.minJdSalary &&
+          job.minJdSalary
+            .toString()
+            .toLowerCase()
+            .includes(salaryFilter.toLowerCase()));
+
+      return (
+        companyMatch && roleMatch && expMatch && locationMatch && salaryMatch
+      );
+    });
+
+    setFilteredData(filtered);
+  };
+
+  useEffect(() => {
+    applyFilters();
+  }, [
+    companySearch,
+    roleFilter,
+    expFilter,
+    locationFilter,
+    salaryFilter,
+    jobData,
+  ]);
 
   const toggleShowMore = (jdUid) => {
     setShowMore((prevMap) => ({
       ...prevMap,
-      [jdUid]: !prevMap[jdUid], // Toggle the value for the specified jdUid
+      [jdUid]: !prevMap[jdUid],
     }));
   };
 
-  const getUserDatavalue = useSelector((x) => x.getUser);
-  console.log(getUserDatavalue);
+ 
 
   useEffect(() => {
     if (getUserDatavalue.response) {
-      console.log(getUserDatavalue.response);
+      // console.log(getUserDatavalue.response);
       const newData = getUserDatavalue.response?.jdList || [];
-      setJobData([...jobData, ...newData]);
+      setJobData((prevData) => [...prevData, ...newData]);
       setHasMore(newData.length > 0);
       setPage(page + 1);
-      setIsLoading(false);
+   
     }
   }, [getUserDatavalue]);
 
@@ -58,88 +128,73 @@ export default function Dashboard() {
     }
   };
 
-  const filteredData = jobData.filter((value) => {
-    if (
-      value.companyName?.toLowerCase().includes(search?.toLowerCase()) ||
-      value.jobRole?.toLowerCase().includes(search?.toLowerCase()) ||
-      value.minExp?.toString().toLowerCase().includes(search?.toLowerCase()) ||
-      value.location?.toLowerCase().includes(search?.toLowerCase()) ||
-      value.minJdSalary
-        ?.toString()
-        .toLowerCase()
-        .includes(search?.toLowerCase())
-    )
-      return true;
-  });
-
-  const searchInfo = (e) => {
-    setSearch(e.target.value);
-  };
-
   return (
     <div>
       <FormControl sx={{ m: 1, minWidth: 120 }}>
-        <InputLabel htmlFor="grouped-native-select">Roles</InputLabel>
+        <InputLabel id="demo-simple-select-label">Roles</InputLabel>
         <Select
-          native
-          defaultValue=""
-          id="grouped-native-select"
+          labelId="demo-simple-select-label"
+          id="demo-simple-select"
+          value={roleFilter}
           label="Roles"
-          onChange={searchInfo}
+          onChange={handleRoleChange}
         >
-          <option aria-label="None" value="" />
           {[...new Set(jobData.map((job) => job.jobRole))]
             .filter((exp) => exp !== null)
             .sort((a, b) => a - b) // Sort in ascending order
             .map((role) => (
-              <option key={role} value={role}>
+              <MenuItem key={role} value={role}>
                 {role}
-              </option>
+              </MenuItem>
             ))}
         </Select>
       </FormControl>
       <FormControl sx={{ m: 1, minWidth: 120 }}>
-        <InputLabel htmlFor="grouped-native-select">Experience</InputLabel>
-        <Select
-          native
-          defaultValue=""
-          id="grouped-native-select"
-          label="Experience"
-          onChange={searchInfo}
-        >
-          <option aria-label="None" value="" />
-          {[...new Set(jobData.map((job) => job.minExp))]
-            .filter((exp) => exp !== null)
-            .sort((a, b) => a - b) // Sort in ascending order
-            .map((exp) => (
-              <option key={exp} value={exp}>
-                {exp}
-              </option>
-            ))}
-        </Select>
-      </FormControl>
+      <InputLabel htmlFor="grouped-native-select">Experience</InputLabel>
+      <Select
+        native
+        defaultValue=""
+        id="grouped-native-select"
+        label="Experience"
+        onChange={handleExpChange}
+      >
+        <option aria-label="None" value="" />
+        {[...new Set(jobData.map((job) => job.minExp))]
+          .filter((exp) => exp !== null)
+          .sort((a, b) => a - b) // Sort in ascending order
+          .map((exp) => (
+            <option key={exp} value={exp}>
+              {exp}
+            </option>
+          ))}
+      </Select>
+    </FormControl>
+    
 
       <FormControl sx={{ m: 1, minWidth: 120 }}>
-        <InputLabel htmlFor="grouped-native-select">Location</InputLabel>
+      <InputLabel id="demo-simple-select-label">Location</InputLabel>
         <Select
-          native
-          defaultValue=""
-          id="grouped-native-select"
+        labelId="demo-simple-select-label"
+        id="demo-simple-select"
+        value={locationFilter}
+     
+        
+          
+         
           label="Location"
-          onChange={searchInfo}
+          onChange={handleLocationChange}
         >
-          <option aria-label="None" value="" />
+        
           {[...new Set(jobData.map((job) => job.location))]
             .filter((exp) => exp !== null)
             .sort((a, b) => a - b) // Sort in ascending order
             .map((location) => (
-              <option key={location} value={location}>
+              <MenuItem key={location} value={location}>
                 {location}
-              </option>
+              </MenuItem>
             ))}
         </Select>
       </FormControl>
-
       <FormControl sx={{ m: 1, minWidth: 240 }}>
         <InputLabel htmlFor="grouped-native-select">
           Minimum Base Pay Salary
@@ -149,7 +204,7 @@ export default function Dashboard() {
           defaultValue=""
           id="grouped-native-select"
           label="Minimum Base Pay Salary"
-          onChange={searchInfo}
+          onChange={handleSalaryChange}
         >
           <option aria-label="None" value="" />
           {[...new Set(jobData.map((job) => job.minJdSalary))]
@@ -162,13 +217,12 @@ export default function Dashboard() {
             ))}
         </Select>
       </FormControl>
-
       <FormControl sx={{ m: 1, minWidth: 120 }}>
         <TextField
           id="outlined-basic"
           label="Search Company"
           variant="outlined"
-          onChange={searchInfo}
+          onChange={handleCompanySearch}
         />
       </FormControl>
       <>

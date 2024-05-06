@@ -20,7 +20,7 @@ const persistedReducer = persistReducer(persistConfig, reducers)
 export const store  = configureStore({
   reducer:persistedReducer,
   devTools: process.env.NODE_ENV !== 'production',
-  middleware: () => new Tuple( logger , thunk),
+  middleware: () => new Tuple( thunk),
 })
 
 window.addEventListener("unload",()=>{

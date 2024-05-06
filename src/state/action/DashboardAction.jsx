@@ -7,7 +7,7 @@ myHeaders.append("Content-Type", "application/json");
 
 
 export const getUserData = (page) => {
-    let limit =5
+    let limit =10
     return (dispatch) => {
       dispatch({
         type: "getUser-api-request",
